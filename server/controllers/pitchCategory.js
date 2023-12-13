@@ -93,6 +93,7 @@ const updateCategory = asyncHandler(async (req, res) => {
     })
 
 })
+
 const deleteCategory = asyncHandler(async (req, res) => {
     const { pcid } = req.params
     const response = await PitchCategory.findByIdAndDelete(pcid)
