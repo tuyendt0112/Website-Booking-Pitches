@@ -1,21 +1,17 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { apiGetPitch, apiGetPitches, apiBooking } from "apis";
+import { apiGetPitch, apiGetPitches, apiBooking, apiGetAllOrder } from "apis";
 import {
   Breadcrumb,
   Button,
   PitchExtraInfo,
   PitchInformation,
   CustomSlider,
-  Map
+  Map,
 } from "components";
 import Slider from "react-slick";
-import ReactImageMagnify from "react-image-magnify";
-import {
-  formatMoney,
-  formatPrice,
-  renderStarFromNumber,
-} from "ultils/helper";
+
+import { formatMoney, formatPrice, renderStarFromNumber } from "ultils/helper";
 import { pitchExtraInformation } from "ultils/constant";
 import DOMPurify, { clearConfig } from "dompurify";
 import clsx from "clsx";
@@ -29,6 +25,7 @@ import { useSelector } from "react-redux";
 import path from "ultils/path";
 import { toast } from "react-toastify";
 import { geocodeByAddress, getLatLng } from "react-google-places-autocomplete";
+import moment from "moment";
 
 const settings = {
   dots: false,
@@ -40,11 +37,13 @@ const settings = {
 
 const { FaCalendarAlt } = icons;
 const DetailPitches = ({ isQuickView, data }) => {
+  const [booking, setBooking] = useState(null);
+  const [getShift, setGetShift] = useState(null);
   const navigate = useNavigate();
-  const params = useParams()
-  const [pid, setpitchid] = useState(null)
-  const [category, setpitchcategory] = useState(null)
-  const { isLoggedIn, current } = useSelector((state) => state.user);
+  const params = useParams();
+  const [pid, setpitchid] = useState(null);
+  const [category, setpitchcategory] = useState(null);
+  const { isLoggedIn } = useSelector((state) => state.user);
   const [pitch, setpitch] = useState(null);
   const [selectedShift, setSelectedShift] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -55,10 +54,28 @@ const DetailPitches = ({ isQuickView, data }) => {
   const [selectedHour, setSelectedHour] = useState([]);
   const [coords, setCoords] = useState(null);
 
+  const fetchBooking = async () => {
+    const response = await apiGetAllOrder();
+    if (response.success) {
+      setBooking(response.Bookings);
+    }
+    setGetShift(shifts);
+    getShift?.map((el) => (el.isDisabled = false));
+
+    if (selectedDate) {
+      response.Bookings.map((el) =>
+        getShift.map((elshift) =>
+          elshift.value === +el.shift &&
+          new Date(el.bookedDate).getTime() ===
+            new Date(selectedDate).getTime() &&
+          pitch._id === el.pitch?._id
+            ? (elshift.isDisabled = true)
+            : ""
+        )
+      );
+    }
+  };
   const handleClickBooking = async () => {
-    console.log("Selected Shift:", selectedShift);
-    console.log("Selected Date:", new Date(selectedDate));
-    console.log("Selected hour:", selectedHour);
     if (!isLoggedIn) {
       return Swal.fire({
         title: "Almost...",
@@ -68,7 +85,9 @@ const DetailPitches = ({ isQuickView, data }) => {
         showCancelButton: true,
         confirmButtonText: "Go Login Page",
       }).then((rs) => {
-        if (rs.isConfirmed) navigate(`${path.LOGIN}`);
+        if (rs.isConfirmed) {
+          navigate(`/${path.LOGIN}`);
+        }
       });
     }
 
@@ -77,7 +96,8 @@ const DetailPitches = ({ isQuickView, data }) => {
       bookedDate: selectedDate,
       pitchId: pid,
       hours: selectedHour,
-      total: pitch?.price
+      total: pitch?.price,
+      namePitch: pitch?.title,
     });
     if (response.success) {
       toast.success(response.message);
@@ -116,8 +136,7 @@ const DetailPitches = ({ isQuickView, data }) => {
       const getCoords = async () => {
         const result = await geocodeByAddress(pitch?.address[0]);
         const latLng = await getLatLng(result[0]);
-        console.log(result);
-        console.log(pitch?.address[0]);
+
         setCoords(latLng);
       };
       pitch && getCoords();
@@ -126,14 +145,13 @@ const DetailPitches = ({ isQuickView, data }) => {
 
   useEffect(() => {
     if (data) {
-      setpitchid(data.pid)
-      setpitchcategory(data.category)
+      setpitchid(data.pid);
+      setpitchcategory(data.category);
+    } else if (params && params.pid) {
+      setpitchid(params.pid);
+      setpitchcategory(params.category);
     }
-    else if (params && params.pid) {
-      setpitchid(params.pid)
-      setpitchcategory(params.category)
-    }
-  }, [data, params])
+  }, [data, params]);
 
   const rerender = useCallback(() => {
     setUpdate(!update);
@@ -144,6 +162,9 @@ const DetailPitches = ({ isQuickView, data }) => {
     setcurrentImage(el);
   };
 
+  useEffect(() => {
+    fetchBooking();
+  }, [selectedDate]);
   return (
     <div className={clsx("w-full")}>
       {!isQuickView && (
@@ -162,7 +183,7 @@ const DetailPitches = ({ isQuickView, data }) => {
         onClick={(e) => e.stopPropagation()}
         className={clsx(
           "bg-white m-auto mt-4 flex",
-          isQuickView ? "max-w-[900px] gap-16 p-8" : "w-main"
+          isQuickView ? "max-w-[1200px] gap-16 p-8" : "w-main"
         )}
       >
         <div
@@ -173,7 +194,7 @@ const DetailPitches = ({ isQuickView, data }) => {
             alt="pitch"
             className="border h-[458px] w-[470px] object-cover"
           />
-          <div className="w-[458px]">
+          <div className="w-[458px] ml-2">
             <Slider className="image-slider" {...settings}>
               {pitch?.images?.map((el) => (
                 <div className="flex w-full gap-2" key={el}>
@@ -226,12 +247,15 @@ const DetailPitches = ({ isQuickView, data }) => {
             <h2 className="font-semibold">Shift:</h2>
             <Select
               id="shift"
-              options={shifts?.map((st) => ({
+              options={getShift?.map((st) => ({
                 label: st.time,
                 value: st.value,
                 hour: st.hour,
+                isDisabled: st.isDisabled,
               }))}
               isMulti
+              isSearchable={false}
+              isDisabled={selectedDate ? false : true}
               placeholder={"Select Shift Book"}
               onChange={(selectedOptions) => {
                 setSelectedShift(selectedOptions.map((option) => option.value));
@@ -247,12 +271,13 @@ const DetailPitches = ({ isQuickView, data }) => {
               <DatePicker
                 selected={selectedDate}
                 onChange={(date) => setSelectedDate(date)}
+                minDate={moment().toDate()}
                 dateFormat="dd/MM/yyyy"
                 // minDate={new Date()}
                 placeholderText="Select Date Book"
-              // showPopperArrow={false}
-              // className="w-full border-none outline-none"
-              // popperClassName="datepicker-popper"
+                // showPopperArrow={false}
+                // className="w-full border-none outline-none"
+                // popperClassName="datepicker-popper"
               />
             </div>
           </div>
@@ -288,7 +313,6 @@ const DetailPitches = ({ isQuickView, data }) => {
               rerender={rerender}
             />
             {/* {!isQuickView && <Map coords={coords} address={pitch?.address[0]} />} */}
-
           </div>
         </div>
       )}
