@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { apiGetPitch, apiGetPitches, apiBooking, apiGetAllOrder } from "apis";
+import moment from "moment";
 import {
   Breadcrumb,
   Button,
@@ -25,7 +26,6 @@ import { useSelector } from "react-redux";
 import path from "ultils/path";
 import { toast } from "react-toastify";
 import { geocodeByAddress, getLatLng } from "react-google-places-autocomplete";
-import moment from "moment";
 
 const settings = {
   dots: false,
@@ -63,15 +63,23 @@ const DetailPitches = ({ isQuickView, data }) => {
     getShift?.map((el) => (el.isDisabled = false));
 
     if (selectedDate) {
+      const currentDate = moment();
+      const currentHour = currentDate.hour();
       response.Bookings.map((el) =>
-        getShift.map((elshift) =>
+        getShift.map((elshift) => {
+          const isSameDay = moment(selectedDate).isSame(currentDate, "day");
           elshift.value === +el.shift &&
-          new Date(el.bookedDate).getTime() ===
+            new Date(el.bookedDate).getTime() ===
             new Date(selectedDate).getTime() &&
-          pitch._id === el.pitch?._id
-            ? (elshift.isDisabled = true)
-            : ""
-        )
+            pitch._id === el.pitch?._id
+            && (elshift.isDisabled = true)
+          // : (elshift.isDisabled = false);
+          if (isSameDay) {
+            if (+currentHour >= +elshift.hour) {
+              elshift.isDisabled = true;
+            }
+          }
+        })
       );
     }
   };
@@ -275,9 +283,9 @@ const DetailPitches = ({ isQuickView, data }) => {
                 dateFormat="dd/MM/yyyy"
                 // minDate={new Date()}
                 placeholderText="Select Date Book"
-                // showPopperArrow={false}
-                // className="w-full border-none outline-none"
-                // popperClassName="datepicker-popper"
+              // showPopperArrow={false}
+              // className="w-full border-none outline-none"
+              // popperClassName="datepicker-popper"
               />
             </div>
           </div>

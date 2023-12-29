@@ -3,6 +3,7 @@ import { InputForm, Pagination } from "components";
 import { useForm } from "react-hook-form";
 import { apiDeletePitch, apiGetUserOrder } from "apis";
 import moment from "moment";
+import { formatMoney, formatPrice } from "ultils/helper";
 import {
   useSearchParams,
   createSearchParams,
@@ -10,7 +11,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import useDebounce from "hooks/useDebounce";
-import UpdatePitch from "pages/admin/UpdatePitch";
+import UpdatePitch from "pages/admin/pitch/UpdatePitch";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
@@ -42,7 +43,7 @@ const History = () => {
   };
 
   const queryDebounce = useDebounce(watch("q"), 800);
-  
+
   useEffect(() => {
     if (queryDebounce) {
       navigate({
@@ -127,7 +128,9 @@ const History = () => {
                   1}
               </td>
               <td className="text-center py-2">{el.pitch.title}</td>
-              <td className="text-center py-2">{el.pitch.price}</td>
+              <td className="text-center py-2">{`${formatMoney(
+                formatPrice(el.pitch.price)
+              )} VNĐ`}</td>
               <td className="text-center py-2">
                 {moment(el.bookedDate).format("DD/MM/YYYY")}
               </td>
