@@ -1,5 +1,5 @@
 import React, { memo, useState } from "react";
-import { formatMoney } from "ultils/helper";
+
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { showModal } from "store/app/appSlice";
@@ -10,6 +10,7 @@ import label2 from "assets/label2.png";
 import defaultt from "assets/default.png";
 import SelectOption from "components/search/SelectOption";
 import icons from "ultils/icons";
+import { formatMoney, formatPrice } from "ultils/helper";
 import { toast } from "react-toastify";
 import { apiUpdateWishlist } from "apis";
 import { getCurrent } from "store/user/asyncAction";
@@ -126,7 +127,7 @@ const Pitch = ({ pitchData, isNew, normal, navigate, dispatch, pid }) => {
           </span>
           <span className="line-clamp-1">{pitchData?.title}</span>
           <span className="text-main">{`${formatMoney(
-            pitchData?.price
+            formatPrice(pitchData?.price)
           )} VNĐ`}</span>
         </div>
       </div>

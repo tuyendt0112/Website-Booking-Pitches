@@ -283,9 +283,121 @@ const forgotPassword = asyncHandler(async (req, res) => {
   if (!user) throw new Error("User not found");
   const resetToken = user.createPasswordChangedToken();
   await user.save();
+  const html = `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Email Template</title>
+      <style>
+          body {
+              font-family: 'Helvetica', Arial, sans-serif;
+              background-color: #f4f4f4;
+              margin: 0;
+              padding: 0;
+          }
 
-  const html = `Please click to this link to reset your password. 
-    <a href=${process.env.CLIENT_URL}/reset-password/${resetToken}>Click here</a>`;
+          .container {
+              max-width: 560px;
+              margin: 0 auto;
+              font-family: 'Helvetica', Arial, sans-serif;
+          }
+
+          .header {
+              background-color:#ffffff;
+              color: #fff;
+              text-align: center;
+              padding: 20px;
+          }
+
+          .logo img {
+              max-width: 100%;
+              height: auto;
+          }
+
+          .content {
+              background-color: #ffffff;
+              color: #353740;
+              padding: 40px 20px;
+              text-align: left;
+              line-height: 1.5;
+          }
+
+          h1 {
+              color: #202123;
+              font-size: 32px;
+              line-height: 40px;
+              margin: 0 0 20px;
+          }
+          .code{
+            font-size: 16px;
+            line-height: 24px;
+            margin: 0 0 24px;
+            text-align: center; 
+          }
+          p {
+            font-size: 16px;
+            line-height: 24px;
+            margin: 0 0 24px; 
+        }
+
+          .cta-button {
+              display: inline-block;
+              text-decoration: none;
+              background: #10a37f;
+              border-radius: 3px;
+              color: white;
+              font-size: 16px;
+              line-height: 24px;
+              font-weight: 400;
+              padding: 12px 20px 11px;
+              margin: 0px;
+          }
+
+          .footer {
+              background: #ffffff;
+              color: #6e6e80;
+              padding: 0 20px 20px;
+              font-size: 13px;
+              line-height: 1.4;
+              text-align: left;
+          }
+      </style>
+  </head>
+  <body>
+      <center>
+          <table class="container" style="width: 100%; border-collapse: collapse !important;">
+              <tr>
+                  <td class="header">
+                      <img src="https://res.cloudinary.com/dmj8tbay1/image/upload/v1701228568/logo_ykataq.png" width="200" height="80" alt="BookingPitches Logo">
+                  </td>
+              </tr>
+              <tr>
+                  <td class="content">
+                      <h1>Reset your password</h1>
+                      <p>
+                          To continue reset your BookingPitches account, please follow this link.
+                      </p>
+                     
+                      <a href=${process.env.CLIENT_URL}/reset-password/${resetToken}>Click here</a>
+                     
+                  </td>
+              </tr>
+              <tr>
+                  <td class="footer">
+                      <p>
+                          This link will expire in 5 minutes. If you did not make this request, please disregard this email.
+                          For help, contact us through our FAQ Page</a>.
+                      </p>
+                  </td>
+              </tr>
+          </table>
+      </center>
+  </body>
+  </html>
+`;
 
   const data = {
     email,
@@ -627,5 +739,5 @@ module.exports = {
   BookingPitch,
   updateWishlist,
   getWishListById,
-  loginGG
+  loginGG,
 };

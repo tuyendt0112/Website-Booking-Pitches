@@ -58,6 +58,7 @@ const Login = () => {
   const handleForgotPassword = async () => {
     const response = await apiForgotPassword({ email });
     if (response.success) {
+      setemail("");
       toast.success(response.mes, { theme: "colored" });
     } else {
       toast.info(response.mes, { theme: "colored" });
@@ -68,16 +69,16 @@ const Login = () => {
   }, [isRegister, isRegisterPitchOwner]);
   //SUBMIT
   const handleSubmit = useCallback(async () => {
-    console.log("RUN 1")
+    console.log("RUN 1");
     if (isRegisterPitchOwner) payload.role = "2";
     else payload.role = "3";
     const { firstname, lastname, role, ...data } = payload;
     const invalids = isRegister
       ? validate(payload, setinvalidFields)
       : isRegisterPitchOwner
-        ? validate(payload, setinvalidFields)
-        : validate(data, setinvalidFields);
-    console.log("CHECK INVALIDS", invalids)
+      ? validate(payload, setinvalidFields)
+      : validate(data, setinvalidFields);
+    console.log("CHECK INVALIDS", invalids);
 
     if (+invalids === 0) {
       if (isRegister || isRegisterPitchOwner) {
@@ -91,7 +92,7 @@ const Login = () => {
         }
       } else {
         const rs = await apiLogin(data);
-        console.log(rs)
+        console.log(rs);
         if (rs.success) {
           if (+rs?.isBlocked === 2) {
             dispatch(
@@ -207,7 +208,12 @@ const Login = () => {
               >
                 Submit
               </Button>
-              <Button handleOnClick={() => setisForgotPassword(false)}>
+              <Button
+                handleOnClick={() => {
+                  setisForgotPassword(false);
+                  setemail("");
+                }}
+              >
                 Cancel
               </Button>
             </div>
@@ -227,8 +233,8 @@ const Login = () => {
             {isRegister
               ? "SIGN UP"
               : isRegisterPitchOwner
-                ? "PITCH OWNER "
-                : "SIGN IN"}
+              ? "PITCH OWNER "
+              : "SIGN IN"}
           </h2>
           <div className=" flex py-1">
             {!isRegister && !isRegisterPitchOwner && (
@@ -374,8 +380,8 @@ const Login = () => {
             {isRegister
               ? "Register"
               : isRegisterPitchOwner
-                ? "Register"
-                : "Login"}
+              ? "Register"
+              : "Login"}
           </Button>
           <div className="flex items-center justify-between my-2 w-full">
             {isRegister && !isRegisterPitchOwner && (

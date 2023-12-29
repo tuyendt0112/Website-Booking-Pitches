@@ -60,7 +60,10 @@ const Home = () => {
                     </h4>
                     <ul className="text-sm mt-4 ml-4 ">
                       {el?.brands?.slice(0, 9).map((item, index) => (
-                        <span key={index} className="flex gap-1 items-center">
+                        <span
+                          key={index}
+                          className="flex gap-1 items-center hover:text-lg"
+                        >
                           <IoIosArrowForward size={14} />
                           <Link
                             to={`/${el.title.toLowerCase()}/${item.toLowerCase()}`}

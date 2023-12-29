@@ -42,6 +42,7 @@ const DetailBrand = () => {
   useEffect(() => {
     fetchBrand(brand);
     fetchPitches(brand);
+    window.scrollTo(0, 0);
   }, [brand]);
   return (
     <div className="w-full">

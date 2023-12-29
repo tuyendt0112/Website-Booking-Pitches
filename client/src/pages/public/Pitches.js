@@ -50,7 +50,7 @@ const Pitches = () => {
     delete queries.from;
     const q = { ...priceQuery, ...queries };
     fetchProductsByCategory(q);
-    window.scrollTo(0, 0);
+    // window.scrollTo(0, 0);
   }, [params]);
 
   const changeActiveFilter = useCallback(
@@ -95,7 +95,6 @@ const Pitches = () => {
       });
     }
   }, [searching, params]);
-
 
   return (
     <div className="w-full">
@@ -151,11 +150,7 @@ const Pitches = () => {
         >
           {pitches?.pitches?.map((el) => (
             <div key={el._id} className="cursor-pointer">
-              <Pitch
-                pid={el._id}
-                pitchData={el}
-                normal={true}
-              ></Pitch>
+              <Pitch pid={el._id} pitchData={el} normal={true}></Pitch>
             </div>
           ))}
         </Masonry>
@@ -163,7 +158,6 @@ const Pitches = () => {
       <div className="w-main m-auto my-4 flex justify-end">
         <Pagination totalCount={pitches?.totalCount} />
       </div>
-      <div className="w-full h-[500px]"></div>
     </div>
   );
 };
