@@ -1,4 +1,5 @@
 Link video demo: https://www.youtube.com/watch?v=8HHJLZqHYQw&t=8s
+-------------------------------------------------------------------------
 HomePage: 
 1/ ![image](https://github.com/tuyendt0112/Website-Booking-Pitches/assets/102451573/26e7a0ae-cc7a-4b71-b4cc-bdc1ab6dabbe)
 
